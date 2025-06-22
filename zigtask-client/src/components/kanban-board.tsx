@@ -46,7 +46,7 @@ const statusToColumnId = {
   COMPLETED: 'completed',
 } as const;
 
-export function KanbanBoard() {
+export function KanbanBoard({ filters }: { filters?: { search?: string; dueDate?: string } }) {
   const pickedUpTaskColumn = useRef<ColumnId | null>(null);
   const columnsId = useMemo(() => defaultCols.map((col) => col.id), [defaultCols]);
 
@@ -55,7 +55,7 @@ export function KanbanBoard() {
     data: tasks = [],
     isLoading,
     updateTaskMutation,
-  } = useTasks();
+  } = useTasks(filters);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -177,7 +177,10 @@ export function KanbanBoard() {
   };
 
   return isLoading ? (
-    <div>Loading...</div>
+    <div className="flex flex-col items-center justify-center h-[400px] w-full">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-3" />
+      <span className="text-muted-foreground text-base">Loading tasks...</span>
+    </div>
   ) : (
     <DndContext
       accessibility={{
