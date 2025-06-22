@@ -1,5 +1,5 @@
-export const TASK_STATUS = ["TODO", "IN_PROGRESS", "COMPLETED"] as const;
-export type TaskStatus = typeof TASK_STATUS[number];
+export const TASK_STATUS = ['TODO', 'IN_PROGRESS', 'COMPLETED'] as const;
+export type TaskStatus = (typeof TASK_STATUS)[number];
 
 export const statusToColumnId = {
   TODO: 'todo',
@@ -8,7 +8,7 @@ export const statusToColumnId = {
 } as const;
 
 export const columnIdToStatus = {
-  'todo': 'TODO',
+  todo: 'TODO',
   'in-progress': 'IN_PROGRESS',
-  'completed': 'COMPLETED',
+  completed: 'COMPLETED',
 } as const;

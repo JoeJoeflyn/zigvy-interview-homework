@@ -21,12 +21,12 @@ export function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 border-b bg-background">
-      <div className="flex items-center gap-4">
+    <nav className="flex flex-col md:flex-row items-center md:justify-between gap-2 md:gap-0 px-4 sm:px-6 py-4 border-b bg-background w-full">
+      <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 w-full md:w-auto">
         <h1 className="text-xl font-bold">Tasks</h1>
         <ThemeToggle />
         {user && (
-          <span className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
+          <span className="flex items-center gap-2 text-sm text-muted-foreground md:ml-4 mt-2 md:mt-0">
             <span className="rounded-full w-8 h-8 flex items-center justify-center bg-muted font-bold border">
               {getInitialsFromEmail(user.email)}
             </span>
@@ -34,7 +34,7 @@ export function Navbar() {
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full md:w-auto justify-end">
         <Button onClick={handleLogout} variant="outline">
           Logout
         </Button>
