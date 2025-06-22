@@ -158,3 +158,6 @@ The API follows RESTful principles and includes the following endpoints:
 
 ### Register page
 ![alt text](./public/image-2.png)
+
+### Video demo
+![alt text](./public/demo.webm)
