@@ -1,9 +1,9 @@
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
-import { getInitialsFromEmail } from "@/lib/avatar-generator";
-import { removeTokens } from "@/lib/cookies";
-import { useUserStore } from "@/store/user";
-import { useNavigate } from "react-router";
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
+import { getInitialsFromEmail } from '@/lib/avatar-generator';
+import { removeTokens } from '@/lib/cookies';
+import { useUserStore } from '@/store/user';
+import { useNavigate } from 'react-router';
 
 export function Navbar() {
   // get user from store
@@ -17,7 +17,7 @@ export function Navbar() {
   const handleLogout = () => {
     removeTokens();
     clearUser();
-    navigate("/");
+    navigate('/');
   };
 
   return (

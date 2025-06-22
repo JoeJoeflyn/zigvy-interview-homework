@@ -1,4 +1,4 @@
-import { RegisterForm } from '@/components/register-form'
+import { RegisterForm } from '@/components/register-form';
 
 export default function Register() {
   return (
@@ -7,5 +7,5 @@ export default function Register() {
         <RegisterForm />
       </div>
     </div>
-  )
+  );
 }

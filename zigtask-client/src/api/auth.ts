@@ -1,5 +1,5 @@
-import { api } from "@/lib/api";
-import { setTokens } from "@/lib/cookies";
+import { api } from '@/lib/api';
+import { setTokens } from '@/lib/cookies';
 
 // action to login user
 export async function login({
@@ -12,7 +12,7 @@ export async function login({
   const result = await api.post<
     { accessToken: string; refreshToken: string; message: string },
     { email: string; password: string }
-  >("/auth/login", { email, password }, { skipAuth: true });
+  >('/auth/login', { email, password }, { skipAuth: true });
   setTokens({
     accessToken: result.accessToken,
     refreshToken: result.refreshToken,
@@ -31,5 +31,5 @@ export async function register({
   return api.post<
     { id: string; email: string; message: string },
     { email: string; password: string }
-  >("/auth/register", { email, password }, { skipAuth: true });
+  >('/auth/register', { email, password }, { skipAuth: true });
 }

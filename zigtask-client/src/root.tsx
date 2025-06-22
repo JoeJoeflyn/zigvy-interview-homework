@@ -1,6 +1,6 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "sonner";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from 'sonner';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,9 +14,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
         <Toaster position="top-center" richColors />
         <ScrollRestoration />
         <Scripts />

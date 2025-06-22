@@ -15,7 +15,10 @@ type TokenPair = {
   refreshToken: string;
 };
 
-export function setTokens({ accessToken, refreshToken }: TokenPair, options: Cookies.CookieAttributes = {}) {
+export function setTokens(
+  { accessToken, refreshToken }: TokenPair,
+  options: Cookies.CookieAttributes = {},
+) {
   const cookieOptions = { ...COOKIE_OPTIONS, ...options };
 
   // Set access token with shorter expiration
@@ -49,7 +52,7 @@ export function getAuthHeaders(): HeadersInit {
 
 export function clearAllCookies() {
   const cookies = document.cookie.split(';');
-  cookies.forEach(cookie => {
+  cookies.forEach((cookie) => {
     const [name] = cookie.trim().split('=');
     if (name) {
       Cookies.remove(name, { path: '/' });

@@ -1,37 +1,37 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import {
   registerSchema,
   type RegisterFormData,
-} from "@/schema/register.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { register as registerApi } from "@/api/auth";
-import { toast } from "sonner";
+} from '@/schema/register.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { register as registerApi } from '@/api/auth';
+import { toast } from 'sonner';
 
 export function RegisterForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<'div'>) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -42,20 +42,23 @@ export function RegisterForm({
     try {
       await registerApi({ email: data.email, password: data.password });
       // show toast succcess if register success
-      toast.success("Registration successful! Please log in.");
+      toast.success('Registration successful! Please log in.');
       // navigate to login page
       setTimeout(() => {
-        navigate("/");
+        navigate('/');
       }, 1000);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message || "Registration failed" : "Registration failed";
+      const message =
+        err instanceof Error
+          ? err.message || 'Registration failed'
+          : 'Registration failed';
       setError(message);
       toast.error(message);
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create an Account</CardTitle>
@@ -70,8 +73,8 @@ export function RegisterForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  {...register("email")}
-                  className={errors.email ? "border-destructive" : ""}
+                  {...register('email')}
+                  className={errors.email ? 'border-destructive' : ''}
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive">
@@ -84,8 +87,8 @@ export function RegisterForm({
                 <Input
                   id="password"
                   type="password"
-                  {...register("password")}
-                  className={errors.password ? "border-destructive" : ""}
+                  {...register('password')}
+                  className={errors.password ? 'border-destructive' : ''}
                 />
                 {errors.password && (
                   <p className="text-sm text-destructive">
@@ -98,8 +101,8 @@ export function RegisterForm({
                 <Input
                   id="confirmPassword"
                   type="password"
-                  {...register("confirmPassword")}
-                  className={errors.confirmPassword ? "border-destructive" : ""}
+                  {...register('confirmPassword')}
+                  className={errors.confirmPassword ? 'border-destructive' : ''}
                 />
                 {errors.confirmPassword && (
                   <p className="text-sm text-destructive">
@@ -115,7 +118,7 @@ export function RegisterForm({
               </Button>
             </div>
             <div className="text-center text-sm">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <Link to="/" className="underline underline-offset-4">
                 Sign in
               </Link>
