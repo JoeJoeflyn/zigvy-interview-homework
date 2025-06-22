@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TaskStatus } from '@prisma/client';
 import { PrismaService } from 'lib/prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { FilterTasksDto } from './dto/filter-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
@@ -31,12 +31,16 @@ export class TasksService {
       },
     });
   }
-
-  async findAll({ userId, status }: { userId: number; status?: TaskStatus }) {
+  async findAll(userId: number, { search, dueDate }: FilterTasksDto) {
     return this.prisma.task.findMany({
       where: {
         userId,
-        ...(status ? { status } : {}),
+        ...(search
+          ? {
+              OR: [{ title: { contains: search, mode: 'insensitive' } }],
+            }
+          : {}),
+        ...(dueDate ? { dueDate: { equals: new Date(dueDate) } } : {}),
       },
       orderBy: [{ status: 'asc' }, { orderIndex: 'asc' }],
     });

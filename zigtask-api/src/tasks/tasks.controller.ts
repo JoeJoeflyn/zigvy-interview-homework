@@ -7,12 +7,14 @@ import {
   Patch,
   Post,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'core/decorator/auth.decorator';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
+import { FilterTasksDto } from './dto/filter-tasks.dto';
 
 @Auth()
 @ApiTags('tasks')
@@ -26,10 +28,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.tasksService.findAll({
-      userId: req.user.sub,
-    });
+  findAll(@Request() req, @Query() filter: FilterTasksDto) {
+    return this.tasksService.findAll(req.user.sub, filter);
   }
 
   @Get(':id')
