@@ -16,6 +16,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { register as registerApi } from "@/lib/api";
 
 export function RegisterForm({
   className,
@@ -30,9 +33,21 @@ export function RegisterForm({
     mode: "onChange",
   });
 
-  const onSubmit = (data: RegisterFormData) => {
-    console.log(data);
-    // Handle form submission
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: RegisterFormData) => {
+    setError(null);
+    try {
+      await registerApi({ email: data.email, password: data.password });
+      navigate("/");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Registration failed");
+      } else {
+        setError("Registration failed");
+      }
+    }
   };
 
   return (
@@ -88,13 +103,16 @@ export function RegisterForm({
                   </p>
                 )}
               </div>
+              {error && (
+                <p className="text-sm text-destructive text-center">{error}</p>
+              )}
               <Button type="submit" className="w-full mt-2">
                 Create Account
               </Button>
             </div>
             <div className="text-center text-sm">
               Already have an account?{" "}
-              <Link to="/login" className="underline underline-offset-4">
+              <Link to="/" className="underline underline-offset-4">
                 Sign in
               </Link>
             </div>
