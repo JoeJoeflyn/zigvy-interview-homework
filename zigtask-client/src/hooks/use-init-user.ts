@@ -1,7 +1,7 @@
-import { getUserInfo } from "@/api/user";
-import { getAccessToken } from "@/lib/cookies";
-import { useUserStore } from "@/store/user";
-import { useEffect } from "react";
+import { getUserInfo } from '@/api/user';
+import { getAccessToken } from '@/lib/cookies';
+import { useUserStore } from '@/store/user';
+import { useEffect } from 'react';
 
 // hook to init user info if token exists
 export function useInitUser() {
@@ -18,7 +18,7 @@ export function useInitUser() {
         const user = await getUserInfo();
         useUserStore.getState().setUser(user);
       } catch (error) {
-        console.log("error in UseInituser", error);
+        console.log('error in UseInituser', error);
         useUserStore.getState().clearUser();
       }
     };

@@ -1,35 +1,35 @@
-import { login } from "@/api/auth";
-import { getUserInfo } from "@/api/user";
-import { Button } from "@/components/ui/button";
+import { login } from '@/api/auth';
+import { getUserInfo } from '@/api/user';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { loginSchema, type LoginFormData } from "@/schema/login.schema";
-import { useUserStore } from "@/store/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
-import { toast } from "sonner";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { loginSchema, type LoginFormData } from '@/schema/login.schema';
+import { useUserStore } from '@/store/user';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router';
+import { toast } from 'sonner';
 
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<'div'>) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -46,21 +46,22 @@ export function LoginForm({
       useUserStore.getState().setUser(user);
 
       // show toast success
-      toast.success("Login successful!");
-      
+      toast.success('Login successful!');
+
       // navigate to tasks page
       setTimeout(() => {
-        navigate("/tasks");
+        navigate('/tasks');
       }, 1000);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message || "Login failed" : "Login failed";
+      const message =
+        err instanceof Error ? err.message || 'Login failed' : 'Login failed';
       setError(message);
       toast.error(message);
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back Zigtask</CardTitle>
@@ -75,8 +76,8 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  {...register("email")}
-                  className={errors.email ? "border-destructive" : ""}
+                  {...register('email')}
+                  className={errors.email ? 'border-destructive' : ''}
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive">
@@ -91,8 +92,8 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
-                  {...register("password")}
-                  className={errors.password ? "border-destructive" : ""}
+                  {...register('password')}
+                  className={errors.password ? 'border-destructive' : ''}
                 />
                 {errors.password && (
                   <p className="text-sm text-destructive">
@@ -105,7 +106,7 @@ export function LoginForm({
               </Button>
             </div>
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Link to="/register" className="underline underline-offset-4">
                 Sign up
               </Link>

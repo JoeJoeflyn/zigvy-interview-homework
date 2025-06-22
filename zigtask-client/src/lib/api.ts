@@ -1,14 +1,24 @@
-import { getAccessToken, getRefreshToken, removeTokens, setTokens } from './cookies';
+import {
+  getAccessToken,
+  getRefreshToken,
+  removeTokens,
+  setTokens,
+} from './cookies';
 
 const API_BASE_URL = '/api/v1';
 
 type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
-interface JsonObject { [key: string]: JsonValue }
+interface JsonObject {
+  [key: string]: JsonValue;
+}
 type JsonArray = JsonValue[];
 
 type RequestBody = JsonValue | FormData | URLSearchParams | Blob | ArrayBuffer;
 
-type RequestOptions<T extends RequestBody = RequestBody> = Omit<RequestInit, 'body' | 'headers'> & {
+type RequestOptions<T extends RequestBody = RequestBody> = Omit<
+  RequestInit,
+  'body' | 'headers'
+> & {
   body?: T;
   skipAuth?: boolean;
   headers?: HeadersInit & {
@@ -44,11 +54,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
   if (!response.ok) {
     throw new ApiError(
-      typeof data === 'object' && data !== null && 'message' in data && typeof data.message === 'string'
+      typeof data === 'object' &&
+      data !== null &&
+      'message' in data &&
+      typeof data.message === 'string'
         ? data.message
         : 'An error occurred',
       response.status,
-      data as T
+      data as T,
     );
   }
 
@@ -88,7 +101,8 @@ async function refreshAccessToken(): Promise<void> {
         throw new Error('Failed to refresh token');
       }
 
-      const { accessToken, refreshToken: newRefreshToken } = await response.json() as TokenResponse;
+      const { accessToken, refreshToken: newRefreshToken } =
+        (await response.json()) as TokenResponse;
       setTokens({ accessToken, refreshToken: newRefreshToken });
     } catch (error) {
       removeTokens();
@@ -105,7 +119,7 @@ async function refreshAccessToken(): Promise<void> {
 
 async function fetchWithAuth<T, B extends RequestBody = RequestBody>(
   endpoint: string,
-  { body, headers = {}, skipAuth = false, ...options }: RequestOptions<B> = {}
+  { body, headers = {}, skipAuth = false, ...options }: RequestOptions<B> = {},
 ): Promise<T> {
   const config: RequestInit = {
     ...options,
@@ -126,12 +140,13 @@ async function fetchWithAuth<T, B extends RequestBody = RequestBody>(
   }
 
   if (body && options.method !== 'GET' && options.method !== 'HEAD') {
-    config.body = body instanceof FormData ||
-                 body instanceof URLSearchParams ||
-                 body instanceof Blob ||
-                 body instanceof ArrayBuffer
-      ? body
-      : JSON.stringify(body);
+    config.body =
+      body instanceof FormData ||
+      body instanceof URLSearchParams ||
+      body instanceof Blob ||
+      body instanceof ArrayBuffer
+        ? body
+        : JSON.stringify(body);
   }
 
   try {
@@ -146,7 +161,11 @@ async function fetchWithAuth<T, B extends RequestBody = RequestBody>(
     ) {
       try {
         await refreshAccessToken();
-        return fetchWithAuth<T, B>(endpoint, { body, headers, ...options } as RequestOptions<B>);
+        return fetchWithAuth<T, B>(endpoint, {
+          body,
+          headers,
+          ...options,
+        } as RequestOptions<B>);
       } catch (error) {
         console.error('Failed to refresh access token:', error);
         removeTokens();
@@ -165,8 +184,10 @@ export const api = {
    * @param endpoint API endpoint (without /api prefix)
    * @param options Request options
    */
-  get: <T>(endpoint: string, options: Omit<RequestOptions<never>, 'body'> = {}) =>
-    fetchWithAuth<T, never>(endpoint, { ...options, method: 'GET' }),
+  get: <T>(
+    endpoint: string,
+    options: Omit<RequestOptions<never>, 'body'> = {},
+  ) => fetchWithAuth<T, never>(endpoint, { ...options, method: 'GET' }),
 
   /**
    * Make a POST request
@@ -177,7 +198,7 @@ export const api = {
   post: <T, B extends RequestBody = JsonValue>(
     endpoint: string,
     body?: B,
-    options: Omit<RequestOptions<B>, 'body'> = {}
+    options: Omit<RequestOptions<B>, 'body'> = {},
   ) => fetchWithAuth<T, B>(endpoint, { ...options, method: 'POST', body }),
 
   /**
@@ -189,7 +210,7 @@ export const api = {
   put: <T, B extends RequestBody = JsonValue>(
     endpoint: string,
     body?: B,
-    options: Omit<RequestOptions<B>, 'body'> = {}
+    options: Omit<RequestOptions<B>, 'body'> = {},
   ) => fetchWithAuth<T, B>(endpoint, { ...options, method: 'PUT', body }),
 
   /**
@@ -199,7 +220,7 @@ export const api = {
    */
   delete: <T>(
     endpoint: string,
-    options: Omit<RequestOptions<never>, 'body'> = {}
+    options: Omit<RequestOptions<never>, 'body'> = {},
   ) => fetchWithAuth<T, never>(endpoint, { ...options, method: 'DELETE' }),
 
   /**
@@ -211,6 +232,6 @@ export const api = {
   patch: <T, B extends RequestBody = JsonValue>(
     endpoint: string,
     body?: B,
-    options: Omit<RequestOptions<B>, 'body'> = {}
+    options: Omit<RequestOptions<B>, 'body'> = {},
   ) => fetchWithAuth<T, B>(endpoint, { ...options, method: 'PATCH', body }),
 };
