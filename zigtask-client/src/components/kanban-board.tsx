@@ -46,16 +46,19 @@ const statusToColumnId = {
   COMPLETED: 'completed',
 } as const;
 
-export function KanbanBoard({ filters }: { filters?: { search?: string; dueDate?: string } }) {
+export function KanbanBoard({
+  filters,
+}: {
+  filters?: { search?: string; dueDate?: string };
+}) {
   const pickedUpTaskColumn = useRef<ColumnId | null>(null);
-  const columnsId = useMemo(() => defaultCols.map((col) => col.id), [defaultCols]);
+  const columnsId = useMemo(
+    () => defaultCols.map((col) => col.id),
+    [defaultCols],
+  );
 
   // Use the combined hook for fetching and mutations
-  const {
-    data: tasks = [],
-    isLoading,
-    updateTaskMutation,
-  } = useTasks(filters);
+  const { data: tasks = [], isLoading, updateTaskMutation } = useTasks(filters);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -256,7 +259,7 @@ export function KanbanBoard({ filters }: { filters?: { search?: string; dueDate?
       // Find the over task
       const overTask = tasks.find((t) => String(t.id) === String(overId));
       console.log(overTask);
-      
+
       if (overTask) {
         updateTaskMutation.mutate({
           id: Number(activeId),

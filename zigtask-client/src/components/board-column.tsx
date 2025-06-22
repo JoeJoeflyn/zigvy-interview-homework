@@ -53,7 +53,7 @@ export function BoardColumn({ column, tasks, isOverlay }: BoardColumnProps) {
   };
 
   const variants = cva(
-    'h-[500px] w-[350px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center overflow-hidden',
+    'h-[500px] w-[90vw] min-w-[260px] md:w-[350px] md:min-w-[350px] max-w-full bg-primary-foreground flex flex-col flex-shrink-0 snap-center overflow-hidden',
     {
       variants: {
         dragging: {
@@ -106,7 +106,7 @@ export function BoardColumn({ column, tasks, isOverlay }: BoardColumnProps) {
 export function BoardContainer({ children }: { children: React.ReactNode }) {
   const dndContext = useDndContext();
 
-  const variations = cva('px-2 md:px-0 flex lg:justify-center pb-4', {
+  const variations = cva('px-2 md:px-0 flex lg:justify-center pb-4 overflow-x-auto md:overflow-x-visible', {
     variants: {
       dragging: {
         default: 'snap-x snap-mandatory',

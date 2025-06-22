@@ -18,7 +18,8 @@ export function useTasks(filters?: { search?: string; dueDate?: string }) {
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number, data: Partial<Task> }) => updateTask(id, data),
+    mutationFn: ({ id, data }: { id: number; data: Partial<Task> }) =>
+      updateTask(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
@@ -37,4 +38,4 @@ export function useTasks(filters?: { search?: string; dueDate?: string }) {
     updateTaskMutation,
     deleteTaskMutation,
   };
-} 
+}
