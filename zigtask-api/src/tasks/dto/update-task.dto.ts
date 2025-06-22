@@ -10,11 +10,6 @@ import {
 } from 'class-validator';
 
 export class UpdateTaskDto {
-  @ApiProperty({ description: 'Task ID', example: 1 })
-  @IsNumber()
-  @Min(1)
-  taskId: number;
-
   @ApiProperty({
     description: 'Task status',
     example: 'TODO',
@@ -30,7 +25,7 @@ export class UpdateTaskDto {
   @IsNumber()
   @Min(0)
   @IsOptional()
-  newIndex?: number;
+  orderIndex?: number;
 
   @ApiProperty({
     description: 'Task title',

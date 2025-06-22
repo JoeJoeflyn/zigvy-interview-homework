@@ -1,37 +1,36 @@
-import type { UniqueIdentifier } from "@dnd-kit/core";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { cva } from "class-variance-authority";
-import { GripVertical } from "lucide-react";
-import { Badge } from "./ui/badge";
-import type { ColumnId } from "./kanban-board";
-import { CardModal } from "./card-modal";
-import type { TaskFormValues } from "./card-modal";
-import { Trash2 } from "lucide-react";
-
-export interface Task {
-  id: UniqueIdentifier;
-  columnId: ColumnId;
-  content: string;
-}
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
+import type { TaskFormValues } from '@/schema/task.schema';
+import type { Task } from '@/types/task.type';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { useTasks } from '@/hooks/use-tasks';
+import { cva } from 'class-variance-authority';
+import { GripVertical, Trash2 } from 'lucide-react';
+import { useCallback } from 'react';
+import { CardModal } from './card-modal';
+import { Badge } from './ui/badge';
 
 interface TaskCardProps {
   task: Task;
   isOverlay?: boolean;
-  onEdit?: (values: TaskFormValues) => void;
-  onDelete?: () => void;
 }
 
-export type TaskType = "Task";
+export type TaskType = 'Task';
 
 export interface TaskDragData {
   type: TaskType;
   task: Task;
 }
 
-export function TaskCard({ task, isOverlay, onEdit = () => {}, onDelete = () => {} }: TaskCardProps) {
+export function TaskCard({ task, isOverlay }: TaskCardProps) {
+  const { updateTaskMutation, deleteTaskMutation } = useTasks();
+
   const {
     setNodeRef,
     attributes,
@@ -42,11 +41,11 @@ export function TaskCard({ task, isOverlay, onEdit = () => {}, onDelete = () => 
   } = useSortable({
     id: task.id,
     data: {
-      type: "Task",
+      type: 'Task',
       task,
     } satisfies TaskDragData,
     attributes: {
-      roleDescription: "Task",
+      roleDescription: 'Task',
     },
   });
 
@@ -55,56 +54,78 @@ export function TaskCard({ task, isOverlay, onEdit = () => {}, onDelete = () => 
     transform: CSS.Translate.toString(transform),
   };
 
-  const variants = cva("", {
+  const variants = cva('', {
     variants: {
       dragging: {
-        over: "ring-2 opacity-30",
-        overlay: "ring-2 ring-primary",
+        over: 'ring-2 opacity-30',
+        overlay: 'ring-2 ring-primary',
       },
     },
   });
+
+  // Map all fields for edit modal
+  const initialValues: TaskFormValues = {
+    title: task.title ?? '',
+    description: task.description ?? '',
+    status: task.status ?? 'TODO',
+    dueDate: task.dueDate ? task.dueDate.slice(0, 10) : '',
+    orderIndex: task.orderIndex,
+  };
+
+  const handleUpdateTask = useCallback(
+    (values: TaskFormValues) => {
+      updateTaskMutation.mutate({ id: Number(task.id), data: values });
+    },
+    [updateTaskMutation, task.id],
+  );
+
+  const handleDeleteTask = useCallback(() => {
+    deleteTaskMutation.mutate(Number(task.id));
+  }, [deleteTaskMutation, task.id]);
 
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      className={variants({
-        dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
-      })}
+      className={
+        variants({
+          dragging: isOverlay ? 'overlay' : isDragging ? 'over' : undefined,
+        }) + ' group relative'
+      }
     >
-      <CardHeader className="px-3 py-3 space-between flex flex-row border-b-2 border-secondary relative">
-        <Button
-          variant={"ghost"}
-          {...attributes}
-          {...listeners}
-          className="p-1 text-secondary-foreground/50 -ml-2 h-auto cursor-grab"
-        >
-          <span className="sr-only">Move task</span>
-          <GripVertical />
-        </Button>
-        <Badge variant={"outline"} className="ml-auto font-semibold">
-          Task
+      <CardHeader className="px-3 py-3 flex flex-row justify-between items-center border-b-2 border-secondary">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            {...attributes}
+            {...listeners}
+            className="p-1 text-secondary-foreground/50 -ml-2 h-auto cursor-grab"
+          >
+            <span className="sr-only">Move task</span>
+            <GripVertical />
+          </Button>
+        </div>
+        <Badge variant="outline" className="font-semibold">
+          {task.title}
         </Badge>
       </CardHeader>
-      <CardContent className="px-3 pt-3 pb-6 text-left whitespace-pre-wrap">
-        {task.content}
+      <CardContent className="p-3 text-left whitespace-pre-wrap">
+        {task.title}
       </CardContent>
       <CardFooter className="flex justify-end gap-1 px-3 pb-2 pt-0">
-       <CardModal
+        <CardModal
           isEdit
           triggerLabel="Edit"
-          initialValues={{
-            title: task.content,
-            status: "TODO", // TODO: map from task if available
-          }}
-          onSubmit={onEdit}
+          initialValues={initialValues}
+          onSubmit={handleUpdateTask}
         />
         <Button
           variant="ghost"
           size="icon"
-          onClick={onDelete}
+          onClick={handleDeleteTask}
           className="text-destructive hover:bg-destructive/10"
           type="button"
+          title="Delete"
         >
           <Trash2 className="w-4 h-4" />
           <span className="sr-only">Delete</span>
