@@ -106,7 +106,7 @@ async function refreshAccessToken(): Promise<void> {
       setTokens({ accessToken, refreshToken: newRefreshToken });
     } catch (error) {
       removeTokens();
-      window.location.href = '/login';
+      window.location.href = '/';
       throw error;
     } finally {
       isRefreshing = false;
@@ -169,7 +169,7 @@ async function fetchWithAuth<T, B extends RequestBody = RequestBody>(
       } catch (error) {
         console.error('Failed to refresh access token:', error);
         removeTokens();
-        window.location.href = '/login';
+        window.location.href = '/';
         throw new Error('Session expired. Please log in again.');
       }
     }
