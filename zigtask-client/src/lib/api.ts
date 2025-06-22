@@ -1,4 +1,4 @@
-import { getAccessToken, getRefreshToken, setTokens, removeTokens } from './cookies';
+import { getAccessToken, getRefreshToken, removeTokens, setTokens } from './cookies';
 
 const API_BASE_URL = '/api/v1';
 
@@ -214,21 +214,3 @@ export const api = {
     options: Omit<RequestOptions<B>, 'body'> = {}
   ) => fetchWithAuth<T, B>(endpoint, { ...options, method: 'PATCH', body }),
 };
-
-// User authentication API
-export async function login({ email, password }: { email: string; password: string }) {
-  const result = await api.post<
-    { accessToken: string; refreshToken: string; message: string },
-    { email: string; password: string }
-  >('/auth/login', { email, password }, { skipAuth: true });
-  setTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
-  return result;
-}
-
-export async function register({ email, password }: { email: string; password: string }) {
-  return api.post<{ id: string; email: string; message: string }, { email: string; password: string }>(
-    '/auth/register',
-    { email, password },
-    { skipAuth: true }
-  );
-}

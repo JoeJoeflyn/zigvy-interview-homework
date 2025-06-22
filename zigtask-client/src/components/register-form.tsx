@@ -18,7 +18,8 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { register as registerApi } from "@/lib/api";
+import { register as registerApi } from "@/api/auth";
+import { toast } from "sonner";
 
 export function RegisterForm({
   className,
@@ -40,13 +41,16 @@ export function RegisterForm({
     setError(null);
     try {
       await registerApi({ email: data.email, password: data.password });
-      navigate("/");
+      // show toast succcess if register success
+      toast.success("Registration successful! Please log in.");
+      // navigate to login page
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Registration failed");
-      } else {
-        setError("Registration failed");
-      }
+      const message = err instanceof Error ? err.message || "Registration failed" : "Registration failed";
+      setError(message);
+      toast.error(message);
     }
   };
 
