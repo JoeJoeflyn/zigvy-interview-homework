@@ -38,8 +38,12 @@ export class TasksController {
   }
 
   @Patch(':id')
-  update(@Request() req, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(req.user.sub, updateTaskDto);
+  update(
+    @Request() req,
+    @Param('id') id: number,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ) {
+    return this.tasksService.update(req.user.sub, id, updateTaskDto);
   }
 
   @Delete(':id')

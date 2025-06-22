@@ -11,22 +11,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { TaskStatus } from '@/types/status.type';
-import { useState, type ReactNode } from 'react';
-
-export interface TaskFormValues {
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  dueDate?: string; // ISO string
-  orderIndex?: number;
-}
+import type { TaskFormValues } from '@/schema/task.schema';
+import { taskSchema } from '@/schema/task.schema';
+import { TASK_STATUS } from '@/types/status.type';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type ReactNode, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface CardModalProps {
   initialValues?: TaskFormValues;
   onSubmit: (values: TaskFormValues) => void;
-  triggerLabel?: ReactNode;
+  triggerLabel?: string;
   isEdit?: boolean;
+  children?: ReactNode;
 }
 
 export function CardModal({
@@ -40,98 +37,125 @@ export function CardModal({
   onSubmit,
   triggerLabel = 'Add card',
   isEdit = false,
+  children,
 }: CardModalProps) {
-  const [form, setForm] = useState<TaskFormValues>(initialValues);
+  const [isOpen, setIsOpen] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<TaskFormValues>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: initialValues,
+    mode: 'onChange',
+  });
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const onValid = (values: TaskFormValues) => {
+    // Ensure status is a valid enum value and in the correct case
+    const submitValues = {
+      ...values,
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(form);
+    // Remove dueDate if empty string or falsy
+    if (!submitValues.dueDate) {
+      delete submitValues.dueDate;
+    }
+
+    onSubmit(submitValues);
+    reset();
+    setIsOpen(false); // Close the modal after submission
   };
 
   return (
-    <Dialog>
-      <form onSubmit={handleSubmit}>
-        <DialogTrigger asChild>
-          <Button variant="outline">{triggerLabel}</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {children || (
+          <Button variant="outline" onClick={() => setIsOpen(true)}>
+            {triggerLabel}
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <form onSubmit={handleSubmit(onValid)}>
           <DialogHeader>
             <DialogTitle>{isEdit ? 'Edit card' : 'Add card'}</DialogTitle>
             <DialogDescription>
               {isEdit
-                ? "Edit this card's details."
-                : 'Add a new card to your column.'}
+                ? 'Edit the task details below.'
+                : 'Add a new task to your board.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                required
-              />
+              <Input id="title" {...register('title')} />
+              {errors.title && (
+                <span className="text-red-500 text-xs">
+                  {errors.title.message}
+                </span>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
               <textarea
                 id="description"
-                name="description"
-                value={form.description}
-                onChange={handleChange}
+                {...register('description')}
                 className="border rounded p-2 min-h-[60px]"
               />
+              {errors.description && (
+                <span className="text-red-500 text-xs">
+                  {errors.description.message}
+                </span>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="status">Status</Label>
               <select
                 id="status"
-                name="status"
-                value={form.status}
-                onChange={handleChange}
+                {...register('status')}
                 className="border rounded p-2"
-                required
               >
-                <option value="TODO">To Do</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="COMPLETED">Completed</option>
+                {TASK_STATUS.map((status) => (
+                  <option key={status} value={status}>
+                    {status.replace('_', ' ')}
+                  </option>
+                ))}
               </select>
+              {errors.status && (
+                <span className="text-red-500 text-xs">
+                  {errors.status.message}
+                </span>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="dueDate">Due Date</Label>
-              <Input
-                id="dueDate"
-                name="dueDate"
-                type="date"
-                value={form.dueDate ? form.dueDate.slice(0, 10) : ''}
-                onChange={handleChange}
-              />
+              <Input id="dueDate" type="date" {...register('dueDate')} />
+              {errors.dueDate && (
+                <span className="text-red-500 text-xs">
+                  {errors.dueDate.message}
+                </span>
+              )}
             </div>
-            {typeof form.orderIndex !== 'undefined' && (
-              <input type="hidden" name="orderIndex" value={form.orderIndex} />
+            {typeof initialValues.orderIndex !== 'undefined' && (
+              <input
+                type="hidden"
+                {...register('orderIndex', { value: initialValues.orderIndex })}
+              />
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" type="button">
+                Cancel
+              </Button>
             </DialogClose>
             <Button type="submit">
               {isEdit ? 'Save changes' : 'Add card'}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }

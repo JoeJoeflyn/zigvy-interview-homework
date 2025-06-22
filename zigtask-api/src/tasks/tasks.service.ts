@@ -54,11 +54,11 @@ export class TasksService {
     return task;
   }
 
-  async update(userId: number, dto: UpdateTaskDto) {
-    const { taskId, status, newIndex, title, description, dueDate } = dto;
+  async update(userId: number, taskId: number, dto: UpdateTaskDto) {
+    const { status, orderIndex, title, description, dueDate } = dto;
 
     // update task title, description, dueDate
-    if (status === undefined && newIndex === undefined) {
+    if (status === undefined && orderIndex === undefined) {
       return this.prisma.task.update({
         where: { id: taskId, userId },
         data: {
@@ -81,7 +81,7 @@ export class TasksService {
       const isSameStatus = task.status === status;
 
       // If no movement needed
-      if (isSameStatus && newIndex === oldIndex) {
+      if (isSameStatus && orderIndex === oldIndex) {
         return task;
       }
 
@@ -99,13 +99,13 @@ export class TasksService {
 
       // 3. Shift tasks in the new position
       if (isSameStatus) {
-        if (newIndex > oldIndex) {
+        if (orderIndex > oldIndex) {
           // Moving down: decrement indices of tasks between old and new position
           await tx.task.updateMany({
             where: {
               userId,
               status,
-              orderIndex: { gt: oldIndex, lte: newIndex },
+              orderIndex: { gt: oldIndex, lte: orderIndex },
             },
             data: { orderIndex: { decrement: 1 } },
           });
@@ -115,7 +115,7 @@ export class TasksService {
             where: {
               userId,
               status,
-              orderIndex: { gte: newIndex, lt: oldIndex },
+              orderIndex: { gte: orderIndex, lt: oldIndex },
             },
             data: { orderIndex: { increment: 1 } },
           });
@@ -126,7 +126,7 @@ export class TasksService {
           where: {
             userId,
             status,
-            orderIndex: { gte: newIndex },
+            orderIndex: { gte: orderIndex },
           },
           data: { orderIndex: { increment: 1 } },
         });
@@ -137,7 +137,7 @@ export class TasksService {
         where: { id: taskId },
         data: {
           status,
-          orderIndex: newIndex,
+          orderIndex,
         },
       });
     });
