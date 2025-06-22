@@ -2,12 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { updateTask, deleteTask, createTask, getTasks } from '@/api/task';
 import type { Task } from '@/types/task.type';
 
-export function useTasks() {
+export function useTasks(filters?: { search?: string; dueDate?: string }) {
   const queryClient = useQueryClient();
 
   const query = useQuery<Task[]>({
-    queryKey: ['tasks'],
-    queryFn: getTasks,
+    queryKey: ['tasks', filters],
+    queryFn: () => getTasks(filters),
   });
 
   const createTaskMutation = useMutation({
