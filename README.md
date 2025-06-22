@@ -1,138 +1,160 @@
-# zigvy-interview-homework
+# Zigtask
 
-# 📝 Project Brief
-Build `ZigTask`, a simple task-management app with both a web client and a mobile client, backed by a Nest.js API and a database (your choice of PostgreSQL or MongoDB). Users can:
+## Project Overview
 
-1. Sign up / Sign in (email & password).
-2. Create, edit, delete tasks (title, description, due date, status).
-3. View task list grouped by status (“To Do”, “In Progress”, “Done”).
-4. Toggle task status with immediate UI feedback (optimistic update).
-5. Search & filter tasks by title or date range.
+Zigtask is a Kanban-style task management app that helps users track their work using three columns: To Do, In Progress, and Completed. Users can easily drag and drop task cards between columns, as well as filter tasks by keyword or due date.
 
-# 🎯 Requirements
+## Features
 
-1. Backend (Nest.js)
-    - Auth: JWT-based sign-up & sign-in endpoints.
-    - CRUD API for tasks, with proper validation (e.g. class-validator).
-    - Database: Model tasks & users. Use TypeORM (PostgreSQL) or Mongoose (Mongo).
-    - API Documentation: Swagger or OpenAPI spec.
+- User authentication (JWT-based)
+- Task management (CRUD operations)
+- RESTful API architecture
+- Prisma ORM for database operations
+- Drag and drop functionality for task reordering
+- Filtering tasks by keyword or due date
 
-2. Web Frontend (React.js + TS) - `Choose either Web, Mobile, or both—depending on your preference and expertise.`
-    - Auth flow: Pages/flows for sign-up, sign-in, sign-out.
-    - Dashboard: List tasks grouped by status. Implement drag-and-drop between columns (e.g. react-beautiful-dnd).
-    - Task Form: Modal or page to create/edit a task.
-    - Search & Filter: Real-time title search + date-picker filter.
-    - State management: Your choice (Context, Redux Toolkit, Zustand, etc.).
-    - UI/UX: Clean, responsive layout. Use a component library (e.g. Ant Design, Chakra, or Tailwind + headless UI).
+## Tech Stack
 
-3. Mobile Client (React Native + TS) - `Choose either Web, Mobile, or both—depending on your preference and expertise.`
-    - Auth: Reuse API; store JWT securely (e.g. AsyncStorage + context).
-    - List view: FlatList of tasks; swipe actions to change status or delete.
-    - Task Form: Native form for create/edit.
-    - Offline support: Cache last-fetched task list and show when offline; sync changes when back online.
+### Backend
+- **Framework**: NestJS
+- **Database**: PostgreSQL (with Prisma ORM)
+- **Authentication**: JWT (JSON Web Tokens)
+- **API Documentation**: Swagger/OpenAPI
+- **Package Manager**: pnpm
+- **Containerization**: Docker
 
-4. Extra Credit **(pick at least one)**
-    - Real-time updates via WebSockets (e.g. broadcast status changes).
-    - Push notifications for tasks due within the next hour.
-    - Dark mode toggle for web and mobile.
-    - Unit & e2e tests: Jest for backend, React Testing Library for web, Detox or similar for mobile.
-    - CI/CD: A simple GitHub Actions pipeline that lints, tests, and builds.
+### Frontend (To be implemented)
+- **Framework**: React + TypeScript + Vite + React Router + React Query
+- **State Management**: Zustand
+- **UI Library**: Shadcn, TailwindCSS
+- **Package Manager**: pnpm
 
-# 📂 Deliverables
+## Setup & Run Instructions
 
-1. Code Folders Repo: `zigtask-api`, `zigtask-client`.
+### Prerequisites
+- pnpm
+- Docker
 
-2. README:
-    - Project overview
-    - Setup & run instructions (backend, web, mobile)
-    - Decisions & trade-offs you made
-    - Swagger/OpenAPI spec (or link to /docs)
-    - Screenshots (or short video) of web & mobile in action
+## Development
 
-# 🧪 Evaluation Criteria
-
-| Area | What We’re Looking For |
-|------|------------------------|
-| Correctness |	All core flows work; data persists correctly. |
-| Code Quality | Clear structure, modularity, TypeScript typings. |
-| Productivity |	Real-world tooling (linters, prettier, scripts). |
-| UI/UX |	Usable, responsive, accessible interfaces. |
-| State Management |	Clean data binding; minimal “boilerplate.” |
-| Documentation |	Easy to follow setup; notes on design decisions. |
-| Testing & CI |	Bonus for solid test coverage & automation. |
-| Creativity |	Extra features, thoughtful edge-case handling. |
-
-# ⏰ Timeline & Submission
-  - Target: Complete within 8–12 hours.
-  - Deadline: As specified in your invitation email.
-
-```
-### Submission Process: IMPORTANT!!! — GUIDELINES MUST BE FOLLOWED
-1. Fork the provided GitHub repository.
-2. Create a new branch from your fork named ${yourname}_${month_year}, e.g: `nguyenvana_june2025`.
-3. Complete the tasks, making frequent commits (we want to see your workflow).
-4. Push your branch and create a Pull Request against the original repository.
-5. Send the PR link to us via email to notify us of your submission.
+### Linting
+```bash
+pnpm lint
 ```
 
----
-# ✅ What This Assignment Actually Assesses
----
-1. End-to-end architecture sense
-    - Choose sensible folder structures and separation of concerns.
-    - Wire up auth, data models, and client–server contracts.
+### Formatting
+```bash
+pnpm format
+```
 
-2. TypeScript fluency & code quality
-    - Types must be used effectively (not just any).
-    - Code reads clearly, with well-named functions and minimal duplication.
+### Building for Production
+```bash
+pnpm build
+```
 
-3. UI/UX judgment
-    - The interface is responsive and accessible.
-    - Handle edge cases (empty lists, loading/error states)?
+### Backend Setup
 
-4. State management & data binding
-    - An approach that fits app complexity (Context API vs Redux Toolkit vs Zustand)?
-    - Optimistic updates implemented cleanly?
+1. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-5. Database modeling & validation
-    - The schema normalized (for SQL) or sensibly embedded (for Mongo)?
-    - Incoming payloads validated (class-validator, Joi, etc.)?
+2. **Set up environment variables**
+   Create a `.env` file in the `zigtask-api` directory with the following variables:
+   ```env
+   NODE_ENV=development
+   PORT=5100
 
-6. Dev-ops & productivity habits
-    - Presence of linting/prettier, helpful NPM scripts.
-    - Clear README with setup instructions and rationale for trade-offs.
+   JWT_SECRET=your-secret
+   JWT_EXPIRES_IN=1d
+   JWT_REFRESH_EXPIRES_IN=7d
 
-7. Extra credit innovation
-    - Tackling WebSockets, offline sync, dark mode, or CI pipelines shows willingness to go beyond the bare minimum.
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/fake-db?schema=public"
+   ```
 
-# 🎯 How to Grade & Differentiate Candidates
-1. Commit history & incremental progress
-    - Look for small, logical commits. A single huge “initial submission” commit is a red flag.
+3. **Run database migrations**
+   ```bash
+   npx prisma migrate dev --name init
+   ```
 
-2. Design rationale
-    - Explain the choices in the README? Good candidates will justify why they chose one library or pattern over another.
+4. **Set up Docker**
+   ```bash
+   # Start the Docker for database
+   docker compose up -d
+   ```
 
-3. Code maintainability
-    - Are there comments only where needed? Is the code DRY (Don’t Repeat Yourself)?
+5. **Start the development server**
+   ```bash
+   # Development mode
+   pnpm run dev
 
-4. Error handling & edge cases
-    - Robust candidates anticipate and handle failures (network errors, invalid input).
+   # Production mode
+   pnpm run build
+   pnpm run start:prod
+   ```
 
-5. Test coverage (if attempted)
-    - Even a few unit tests for critical functions indicate an understanding of quality practices.
+6. **Access API documentation**
+   Once the server is running, access the Swagger documentation at:
+   ```
+   http://localhost:5100/api
+   ```
 
-# 🛡️ Mitigating AI-Generated “Cheating”
-1. Require a short design doc or architecture diagram
-    - Candidates will be asked to sketch their data models, API routes, and component hierarchy before during the face-to-face interview. AI can generate code, but bespoke diagrams and annotated trade-off discussions are required.
+### Frontend Setup
 
-2. Enforce staged commits
-    - The more frequent and meaningful your commits are, the more they demonstrate your coding ability and prove that the code was genuinely written by you—not generated by AI.
+1. **Navigate to the frontend directory**
+   ```bash
+   cd ../zigtask-web
+   ```
 
-# 🔑 Bottom Line
-A take-home test is a starting point. Its real power comes from:
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-1. What you (candidates) submit (code quality, docs, tests),
-2. How do you defend the work in a follow-up, and
-3. Your grading rubric rewards thoughtful trade-offs over copy-pasted solutions.
+3. **Start the development server**
+   ```bash
+   # Development mode
+   pnpm run dev
 
-# 🚀💻🎉 HAPPY CODING 👨‍💻✨💡
+   # Build for production
+   pnpm run build
+   ```
+
+4. **Access the application**
+   Once the development server is running, access the application at:
+   ```
+   http://localhost:5173
+   ```
+
+## API Documentation
+
+Detailed API documentation is available through Swagger UI when the application is running:
+- Development: `http://localhost:5100/api`
+
+The API follows RESTful principles and includes the following endpoints:
+
+### User
+- `GET /user/me` - Get the current user's information
+
+### Authentication
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Authenticate and receive JWT token
+- `POST /auth/refresh` - Exchange a refresh token for a new access token
+
+### Tasks
+- `GET /tasks` - Get all tasks (requires authentication)
+- `POST /tasks` - Create a new task
+- `GET /tasks/:id` - Get a specific task
+- `PATCH /tasks/:id` - Update a task
+- `DELETE /tasks/:id` - Delete a task
+
+## Demo
+
+### Dashboard page
+![alt text](./public/image.png)
+
+### Login page
+![alt text](./public/image-1.png)
+
+### Register page
+![alt text](./public/image-2.png)
