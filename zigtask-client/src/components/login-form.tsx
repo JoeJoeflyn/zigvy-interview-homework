@@ -1,23 +1,28 @@
+import { login } from "@/api/auth";
+import { getUserInfo } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { loginSchema, type LoginFormData } from "@/schema/login.schema";
+import { useUserStore } from "@/store/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router";
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { login } from "@/lib/api";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const {
     register,
     handleSubmit,
@@ -34,13 +39,23 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     setError(null);
     try {
       await login(data);
-      navigate("/tasks");
+      // call user info api save it to user store
+      const user = await getUserInfo();
+
+      // if success save user infor to store
+      useUserStore.getState().setUser(user);
+
+      // show toast success
+      toast.success("Login successful!");
+      
+      // navigate to tasks page
+      setTimeout(() => {
+        navigate("/tasks");
+      }, 1000);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Login failed");
-      } else {
-        setError("Login failed");
-      }
+      const message = err instanceof Error ? err.message || "Login failed" : "Login failed";
+      setError(message);
+      toast.error(message);
     }
   };
 
