@@ -57,109 +57,87 @@ export class TasksService {
   async update(userId: number, dto: UpdateTaskDto) {
     const { taskId, status, newIndex, title, description, dueDate } = dto;
 
+    // update task title, description, dueDate
+    if (status === undefined && newIndex === undefined) {
+      return this.prisma.task.update({
+        where: { id: taskId, userId },
+        data: {
+          ...(title && { title }),
+          ...(description && { description }),
+          // Update dueDate if it's provided (including null to remove it)
+          ...(dueDate !== undefined && { dueDate }),
+        },
+      });
+    }
+
+    // update task status and newIndex
     return this.prisma.$transaction(async (tx) => {
       // 1. Get the task we're moving
       const task = await tx.task.findUniqueOrThrow({
-        where: { userId, id: taskId },
+        where: { id: taskId, userId },
       });
 
-      const isSameStatus = task.status === status;
       const oldIndex = task.orderIndex;
+      const isSameStatus = task.status === status;
 
+      // If no movement needed
       if (isSameStatus && newIndex === oldIndex) {
-        return task; // No movement needed
+        return task;
       }
 
-      // 2. Temporarily set the task's order to -1 to avoid voilate unique constraint
-      await tx.task.update({
-        where: { id: taskId },
-        data: { orderIndex: -1 },
-      });
-
-      // 3. If changing status, update tasks in the old status
+      // 2. Adjust the old column if status changed
       if (!isSameStatus) {
-        // Decrement orderIndex for tasks after the oldIndex in the old status
-        const tasksToDecrement = await tx.task.findMany({
+        await tx.task.updateMany({
           where: {
             userId,
             status: task.status,
             orderIndex: { gt: oldIndex },
           },
-          orderBy: { orderIndex: 'asc' },
+          data: { orderIndex: { decrement: 1 } },
         });
-        for (const t of tasksToDecrement) {
-          await tx.task.update({
-            where: { id: t.id },
-            data: { orderIndex: t.orderIndex - 1 },
-          });
-        }
       }
 
-      // 4. Make space in the target status
+      // 3. Shift tasks in the new position
       if (isSameStatus) {
         if (newIndex > oldIndex) {
-          // Moving down within the same status: decrement orderIndex for tasks between oldIndex+1 and newIndex (inclusive)
-          const tasksToDecrement = await tx.task.findMany({
+          // Moving down: decrement indices of tasks between old and new position
+          await tx.task.updateMany({
             where: {
               userId,
               status,
               orderIndex: { gt: oldIndex, lte: newIndex },
             },
-            orderBy: { orderIndex: 'asc' },
+            data: { orderIndex: { decrement: 1 } },
           });
-          for (const t of tasksToDecrement) {
-            await tx.task.update({
-              where: { id: t.id },
-              data: { orderIndex: t.orderIndex - 1 },
-            });
-          }
         } else {
-          // Moving up within the same status: increment orderIndex for tasks between newIndex and oldIndex-1 (inclusive)
-          const tasksToIncrement = await tx.task.findMany({
+          // Moving up: increment indices of tasks between new and old position
+          await tx.task.updateMany({
             where: {
               userId,
               status,
               orderIndex: { gte: newIndex, lt: oldIndex },
             },
-            orderBy: { orderIndex: 'desc' },
+            data: { orderIndex: { increment: 1 } },
           });
-          for (const t of tasksToIncrement) {
-            await tx.task.update({
-              where: { id: t.id },
-              data: { orderIndex: t.orderIndex + 1 },
-            });
-          }
         }
       } else {
-        // Moving to a different status: increment orderIndex for tasks in the new status with orderIndex >= newIndex
-        const tasksToIncrement = await tx.task.findMany({
+        // Moving to a different status
+        await tx.task.updateMany({
           where: {
             userId,
             status,
             orderIndex: { gte: newIndex },
           },
-          orderBy: { orderIndex: 'desc' },
+          data: { orderIndex: { increment: 1 } },
         });
-        await Promise.all(
-          tasksToIncrement.map((t) =>
-            tx.task.update({
-              where: { id: t.id },
-              data: { orderIndex: t.orderIndex + 1 },
-            }),
-          ),
-        );
       }
 
-      // 5. Update the task to its final position and status
+      // 4. Finally, update the task with its new position and any other field updates
       return tx.task.update({
         where: { id: taskId },
         data: {
           status,
           orderIndex: newIndex,
-          ...(title && { title }),
-          ...(description && { description }),
-          // Only update dueDate if it's not undefined, if null it mean remove the dueDate
-          ...(dueDate !== undefined ? { dueDate } : {}),
         },
       });
     });
