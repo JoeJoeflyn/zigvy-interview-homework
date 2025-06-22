@@ -13,6 +13,9 @@ import { loginSchema, type LoginFormData } from "@/schema/login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { login } from "@/lib/api";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const {
@@ -24,9 +27,21 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     mode: "onChange",
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log(data);
-    // Handle form submission
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: LoginFormData) => {
+    setError(null);
+    try {
+      await login(data);
+      navigate("/tasks");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Login failed");
+      } else {
+        setError("Login failed");
+      }
+    }
   };
 
   return (
@@ -80,6 +95,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 Sign up
               </Link>
             </div>
+            {error && (
+              <p className="text-sm text-destructive text-center">{error}</p>
+            )}
           </CardContent>
         </form>
       </Card>
