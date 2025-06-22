@@ -29,7 +29,7 @@ export interface TaskDragData {
 }
 
 export function TaskCard({ task, isOverlay }: TaskCardProps) {
-  const { updateTaskMutation, deleteTaskMutation } = useTasks();
+  const { deleteTaskMutation } = useTasks();
 
   const {
     setNodeRef,
@@ -69,15 +69,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
     description: task.description ?? '',
     status: task.status ?? 'TODO',
     dueDate: task.dueDate ? task.dueDate.slice(0, 10) : '',
-    orderIndex: task.orderIndex,
   };
-
-  const handleUpdateTask = useCallback(
-    (values: TaskFormValues) => {
-      updateTaskMutation.mutate({ id: Number(task.id), data: values });
-    },
-    [updateTaskMutation, task.id],
-  );
 
   const handleDeleteTask = useCallback(() => {
     deleteTaskMutation.mutate(Number(task.id));
@@ -110,14 +102,19 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
         </Badge>
       </CardHeader>
       <CardContent className="p-3 text-left whitespace-pre-wrap">
-        {task.title}
+        {task.description}
+        {task.dueDate && (
+          <div className="text-xs text-muted-foreground mt-2">
+            Due: {task.dueDate.slice(0, 10)}
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex justify-end gap-1 px-3 pb-2 pt-0">
         <CardModal
           isEdit
           triggerLabel="Edit"
           initialValues={initialValues}
-          onSubmit={handleUpdateTask}
+          taskId={task.id}
         />
         <Button
           variant="ghost"

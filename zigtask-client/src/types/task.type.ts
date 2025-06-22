@@ -1,8 +1,7 @@
-import type { UniqueIdentifier } from '@dnd-kit/core';
 import type { TaskStatus } from './status.type';
 
 export interface Task {
-  id: UniqueIdentifier;
+  id: number;
   title: string;
   description?: string;
   status: TaskStatus;

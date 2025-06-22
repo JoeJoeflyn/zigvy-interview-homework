@@ -11,19 +11,20 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTasks } from '@/hooks/use-tasks';
 import type { TaskFormValues } from '@/schema/task.schema';
 import { taskSchema } from '@/schema/task.schema';
-import { TASK_STATUS } from '@/types/status.type';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface CardModalProps {
   initialValues?: TaskFormValues;
-  onSubmit: (values: TaskFormValues) => void;
+  onSubmit?: (values: TaskFormValues) => void;
   triggerLabel?: string;
   isEdit?: boolean;
   children?: ReactNode;
+  taskId?: number;
 }
 
 export function CardModal({
@@ -32,13 +33,14 @@ export function CardModal({
     description: '',
     status: 'TODO',
     dueDate: '',
-    orderIndex: undefined,
   },
   onSubmit,
   triggerLabel = 'Add card',
   isEdit = false,
   children,
+  taskId,
 }: CardModalProps) {
+  const { updateTaskMutation } = useTasks();
   const [isOpen, setIsOpen] = useState(false);
   const {
     register,
@@ -57,15 +59,35 @@ export function CardModal({
       ...values,
     };
 
-    // Remove dueDate if empty string or falsy
+    // Set dueDate to null if empty or falsy, otherwise convert to ISO string
     if (!submitValues.dueDate) {
-      delete submitValues.dueDate;
+      (submitValues as Record<string, unknown>).dueDate = null;
+    } else {
+      submitValues.dueDate = new Date(submitValues.dueDate).toISOString();
+    }
+    // Remove orderIndex and status if editing
+    let updateValues: Partial<TaskFormValues> = submitValues;
+    if (isEdit) {
+      const { orderIndex, status, ...rest } = submitValues;
+      void orderIndex;
+      void status;
+      updateValues = rest;
     }
 
-    onSubmit(submitValues);
+    if (isEdit && taskId) {
+      updateTaskMutation.mutate({ id: taskId, data: updateValues });
+    } else if (onSubmit) {
+      onSubmit(submitValues);
+    }
     reset();
     setIsOpen(false); // Close the modal after submission
   };
+
+  useEffect(() => {
+    if (isEdit && isOpen) {
+      reset(initialValues);
+    }
+  }, [isEdit, isOpen, initialValues, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -106,25 +128,6 @@ export function CardModal({
               {errors.description && (
                 <span className="text-red-500 text-xs">
                   {errors.description.message}
-                </span>
-              )}
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                {...register('status')}
-                className="border rounded p-2"
-              >
-                {TASK_STATUS.map((status) => (
-                  <option key={status} value={status}>
-                    {status.replace('_', ' ')}
-                  </option>
-                ))}
-              </select>
-              {errors.status && (
-                <span className="text-red-500 text-xs">
-                  {errors.status.message}
                 </span>
               )}
             </div>
