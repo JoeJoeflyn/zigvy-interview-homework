@@ -1,0 +1,23 @@
+services:
+  db:
+    container_name: db-zigtask
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: zigtask
+    ports:
+      - '5433:5432'
+    restart: unless-stopped
+    networks:
+      - zigtask
+
+networks:
+  zigtask:
+    name: zigtask
+    driver: bridge
+
+volumes:
+  db_data:
